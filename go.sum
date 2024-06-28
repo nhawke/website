@@ -1,0 +1,4 @@
+github.com/nhawke/recipe-handler v0.0.0-20240627224216-4c5f14960511 h1:6fsodbkRuHVAhe5cP2YOwkqPwNHQhzKLeawk/WueDdU=
+github.com/nhawke/recipe-handler v0.0.0-20240627224216-4c5f14960511/go.mod h1:EN0f0nzpc8zCwqW8aovPL5y+k8+0qO6hbJTDAKzjSqg=
+github.com/yuin/goldmark v1.7.1 h1:3bajkSilaCbjdKVsKdZjZCLBNPL9pYzrCakKaf4U49U=
+github.com/yuin/goldmark v1.7.1/go.mod h1:uzxRWxtg69N339t3louHJ7+O03ezfj6PlliRlaOzY1E=
