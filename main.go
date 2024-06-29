@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"embed"
 	"flag"
 	"fmt"
@@ -16,7 +17,8 @@ var (
 	recipeFolderPath = flag.String("recipe_path", "", "path to recipe folder")
 
 	//go:embed pages
-	pagesFS embed.FS
+	//go:embed layouts
+	templatesFS embed.FS
 
 	baseTemplate *template.Template
 )
@@ -29,10 +31,13 @@ func main() {
 
 	http.HandleFunc("/", servePage)
 
+	recipePageTmpl := template.Must(template.ParseFS(templatesFS, "layouts/base.html.tmpl", "layouts/recipe.html.tmpl"))
+	recipeListTmpl := template.Must(template.ParseFS(templatesFS, "layouts/base.html.tmpl", "layouts/recipe_list.html.tmpl"))
+
 	recipeHandler := &recipes.Handler{
 		Path:               *recipeFolderPath,
-		RecipePageTemplate: pageTemplate("recipes.html.tmpl"),
-		RecipeListTemplate: recipes.DefaultRecipeListTemplate,
+		RecipePageTemplate: recipePageTmpl,
+		RecipeListTemplate: recipeListTmpl,
 	}
 	http.Handle("/recipes/", http.StripPrefix("/recipes", recipeHandler))
 
@@ -40,15 +45,6 @@ func main() {
 	err := http.ListenAndServe(":8080", nil)
 	fmt.Fprintln(os.Stderr, err)
 	os.Exit(1)
-}
-
-func pageTemplate(pageName string) *template.Template {
-	tmpl, err := template.ParseFS(pagesFS, "pages/base.html.tmpl", "pages/"+pageName)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to find template at path: pages/%v\n", pageName)
-		return nil
-	}
-	return tmpl
 }
 
 func servePage(w http.ResponseWriter, req *http.Request) {
@@ -61,13 +57,20 @@ func servePage(w http.ResponseWriter, req *http.Request) {
 	pageName += ".html.tmpl"
 	fmt.Fprintf(os.Stderr, "Page %v resolved to %v\n", req.URL.Path, pageName)
 
-	t := pageTemplate(pageName)
-	if t == nil {
+	tmpl, err := template.ParseFS(templatesFS, "layouts/base.html.tmpl", "pages/"+pageName)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to find template at path: pages/%v\n", pageName)
+	}
+	if tmpl == nil {
 		http.NotFound(w, req)
 		return
 	}
 
-	if err := t.Execute(w, nil); err != nil {
+	var buf bytes.Buffer
+	if err := tmpl.Execute(&buf, nil); err != nil {
+		fmt.Fprintf(os.Stderr, "Error executing template for page %v: %v\n", pageName, err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+
+	w.Write(buf.Bytes())
 }

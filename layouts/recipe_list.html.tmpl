@@ -1,0 +1,11 @@
+{{define "title"}}Recipes{{end}}
+
+{{define "body"}}
+
+<h1>Recipes</h1>
+
+{{range . -}}
+<div><a href="{{.}}">{{.}}</a> </div>
+{{end}}
+
+{{end}}
