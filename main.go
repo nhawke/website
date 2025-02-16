@@ -10,7 +10,7 @@ import (
 	"os"
 	"strings"
 
-	recipes "github.com/nhawke/recipe-handler"
+	"github.com/nhawke/website/recipes"
 )
 
 var (
@@ -19,8 +19,6 @@ var (
 	//go:embed pages
 	//go:embed layouts
 	templatesFS embed.FS
-
-	baseTemplate *template.Template
 )
 
 func init() {
