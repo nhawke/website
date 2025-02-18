@@ -19,7 +19,10 @@ import (
 
 var (
 	md = goldmark.New(
-		goldmark.WithExtensions(extension.Linkify),
+		goldmark.WithExtensions(
+			extension.Linkify,
+			extension.Footnote,
+		),
 	)
 )
 
