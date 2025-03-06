@@ -22,6 +22,7 @@ var (
 		goldmark.WithExtensions(
 			extension.Linkify,
 			extension.Footnote,
+			extension.Table,
 		),
 	)
 )
