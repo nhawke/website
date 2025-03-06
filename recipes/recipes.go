@@ -41,6 +41,13 @@ type Handler struct {
 func (h *Handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	page := req.URL.Path
 
+	if strings.Contains(page, "..") {
+		errString := fmt.Sprintf("Invalid request path %q\n", h.Path)
+		fmt.Fprint(os.Stderr, errString)
+		http.Error(w, errString, http.StatusBadRequest)
+
+	}
+
 	if page == "/" {
 		h.dirList(w, req)
 		return
@@ -64,7 +71,7 @@ func (h *Handler) dirList(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		errString := fmt.Sprintf("Error reading recipe folder %q: %v\n", h.Path, err)
 		fmt.Fprint(os.Stderr, errString)
-		http.Error(w, errString, 500)
+		http.Error(w, errString, http.StatusInternalServerError)
 		return
 	}
 
