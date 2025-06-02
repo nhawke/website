@@ -13,6 +13,7 @@ import (
 
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/extension"
+	"go.abhg.dev/goldmark/wikilink"
 
 	_ "embed"
 )
@@ -23,6 +24,7 @@ var (
 			extension.Linkify,
 			extension.Footnote,
 			extension.Table,
+			&wikilink.Extender{Resolver: wikiResolver{}},
 		),
 	)
 )
@@ -134,6 +136,13 @@ func (h *Handler) serveFile(w http.ResponseWriter, r *http.Request, path string)
 type Page struct {
 	Title string
 	Body  template.HTML
+}
+
+type wikiResolver struct{}
+
+func (wikiResolver) ResolveWikilink(n *wikilink.Node) ([]byte, error) {
+	// We handle redirecting in the HTTP handler, so we can just spit out the plain target as is.
+	return n.Target, nil
 }
 
 func pageTitle(p string) string {
